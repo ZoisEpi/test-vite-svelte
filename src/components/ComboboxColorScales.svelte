@@ -13,7 +13,7 @@
     const leftComboStyle = (width - 200)/2;
   
     // Set the default color scale selection
-    let selectedScale = colorScales[0];  // Set default to the first scale in the list
+    export let selectedScale = "";  // Set default to the first scale in the list
   
     // Function to generate the gradient for each scale
     function getGradient(scaleName) {

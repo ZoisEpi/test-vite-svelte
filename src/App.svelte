@@ -18,8 +18,6 @@
 
   const colorScales = [
     'interpolateSpectral',
-    'interpolateRainbow',
-    'interpolateSinebow',
     'interpolateTurbo',
     'interpolateViridis',
     'interpolateInferno',
@@ -41,10 +39,12 @@
     'interpolatePurples',
     'interpolateReds',
     'interpolateCividis',
-    'interpolateGreys'
+    'interpolateGreys',
+    'interpolateRainbow',
+    'interpolateSinebow',
   ];
 
-let selectedColorScale = colorScales[0];
+let selectedColorScale = 'interpolateViridis';
 
 let sliderValue = 0.19;
 let triggerValueIm = sliderValue;
@@ -136,14 +136,23 @@ function handleChangeVisuType(value) {
   <!-- Colonne centrale -->
   <div class="center-column">
     
-    <D3Graph {data} {width} {height} {selectedColorScale} />
+    <D3Graph {data} {width} {height} {selectedColorScale} {visuType}/>
   </div>
 
   <!-- Colonne droite (vide ou à utiliser plus tard) -->
   <div class="right-column">
-    <ComboboxColorScales {colorScales} {width} on:select={handleColorScaleSelection} />
-    <D3CheckBox height={30} value_id={"im"} label={"Im(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <ComboboxColorScales {colorScales} {width} bind:selectedScale={selectedColorScale} on:select={handleColorScaleSelection} />
+    <MathJaxRenderer tex={ 'f(x) = \\operatorname{Re}(x) + i \\cdot \\operatorname{Im}(x)'} />
+
     <D3CheckBox height={30} value_id={"re"} label={"Re(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
-  </div>
+    <D3CheckBox height={30} value_id={"im"} label={"Im(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    
+    <MathJaxRenderer tex={ 'f(x) = \\rho(x) \\cdot e^{i \\theta(x)}'} />  
+
+    <D3CheckBox height={30} value_id={"rho"} label={"ρ(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <D3CheckBox height={30} value_id={"theta"} label={"θ(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    
+ 
+    </div>
 
 </div>

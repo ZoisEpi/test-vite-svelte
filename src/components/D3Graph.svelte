@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
+    import { im } from 'mathjs';
 
   const margin = 50;
   export let width = 500;
@@ -10,11 +11,34 @@
   const fullHeight = height + 2 * margin;
   export let data = [];
   export let selectedColorScale;
+  export let visuType = "im";
   $: scale = d3[selectedColorScale];
 
   var context = null;
   var scaleQuantile = null;
 
+  let extractedValue = (k) => data[(2 * k)];
+
+
+  $:
+    if (visuType === 're') {
+      console.log("re in data");
+      extractedValue = (k) => data[2 * k];  
+      computeScale();
+      drawGraph();
+    } else if (visuType === 'im') { 
+      extractedValue = (k) => data[2 * k + 1]; 
+      computeScale();
+      drawGraph(); 
+    } else if (visuType === 'rho') {
+      extractedValue = (k) => Math.sqrt(data[2 * k] ** 2 + data[2 * k + 1] ** 2);  
+      computeScale();
+      drawGraph();
+    } else if (visuType === 'theta') {
+      extractedValue = (k) => Math.atan2(data[2 * k + 1], data[2 * k]);  
+      computeScale();
+      drawGraph();
+    }
 
   const limit = 5_000_000;
   let container;
@@ -92,7 +116,7 @@ function drawGraph() {
   for (let i = 0; i < width; ++i) {
     for (let j = 0; j < height; ++j) {
 
-      const testIm = data[(i * height + j) *2 + 1];
+      const testIm = extractedValue((i * height + j));//data[(i * height + j) *2 + 1];
       const index = 4 * (height * j + i);
 
       if (!isNaN(testIm) && Math.abs(testIm) < limit) {
@@ -147,7 +171,7 @@ function computeScale() {
 
 const colorPix = [];
 for (let i = 0; i < count; i++) {
-  const re = data[(i * 2) +1];
+  const re = extractedValue(i);//data[(i * 2) +1];
   if (isFinite(re) && Math.abs(re) < limit) {
     colorPix.push(re);
   }

@@ -26,7 +26,7 @@
 
         checkPath.style("visibility", value_group === value_id ? "visible" : "hidden");
         box.style("opacity", value_group === value_id ? 1 : 0.5);
-        text.style("opacity", value_group === value_id ? 1 : 0.8);
+        text.style("opacity", value_group === value_id ? 1 : 0.6);
     }
 
     $ : {
