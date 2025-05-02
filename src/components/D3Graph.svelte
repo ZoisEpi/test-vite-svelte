@@ -48,22 +48,25 @@
     svg.append("g")
       .attr("transform", `translate(${margin}, ${height + margin})`)
       .call(xAxis)
-      .selectAll("text")  // Select all tick text
-  .style("font-size", "16px")   // Increase font size
-  .style("font-family", "serif"); // Optional: Change font to make it look more like math
+      .selectAll("text")  
+      .style("font-size", "16px")
+      .style("font-family", "Georgia, serif") 
+      .style("fill", "var(--text-color)");    
 
     svg.append("g")
       .attr("transform", `translate(${margin}, ${margin})`)
       .call(yAxis)
-      .selectAll("text")  // Select all tick text
-  .style("font-size", "16px")   // Increase font size
-  .style("font-family", "serif"); // Optional: Change font to make it look more like math
+      .selectAll("text")  
+      .style("font-size", "16px")
+      .style("font-family", "Georgia, serif") 
+      .style("fill", "var(--text-color)");    
 
     const canvas = container.querySelector('canvas');
     canvas.width = width;
     canvas.height = height;
 
     context = canvas.getContext("2d");
+   // context.imageSmoothingEnabled = false;
     drawGraph();
 
   });
@@ -88,11 +91,12 @@ function drawGraph() {
 
   for (let i = 0; i < width; ++i) {
     for (let j = 0; j < height; ++j) {
-      const compTest = data[i * height + j];
+
+      const testIm = data[(i * height + j) *2 + 1];
       const index = 4 * (height * j + i);
 
-      if (!isNaN(compTest.re) && Math.abs(compTest.re) < limit) {
-        const color = d3.rgb(scale(scaleQuantile(compTest.re)));
+      if (!isNaN(testIm) && Math.abs(testIm) < limit) {
+        const color = d3.rgb(scale(scaleQuantile(testIm)));
         imageData[index]     = color.r;
         imageData[index + 1] = color.g;
         imageData[index + 2] = color.b;
@@ -138,13 +142,21 @@ function drawGraph() {
 }
 
 function computeScale() {
-  const colorPix = data
-      .filter(d => isFinite(d.re) && Math.abs(d.re) < limit)
-      .map(d => d.re);
+  console.time("Quantiles D3");
+  const count = data.length / 2;
 
-    const numQuantiles = 20;
-    const quantileThresholds = d3.range(numQuantiles + 1).map(d => d3.quantile(colorPix, d / numQuantiles));
+const colorPix = [];
+for (let i = 0; i < count; i++) {
+  const re = data[(i * 2) +1];
+  if (isFinite(re) && Math.abs(re) < limit) {
+    colorPix.push(re);
+  }
+}
+colorPix.sort(d3.ascending);
+    const numQuantiles = 100;
+    const quantileThresholds = d3.range(numQuantiles + 1).map(d => d3.quantileSorted(colorPix, d / numQuantiles));
     scaleQuantile = d3.scaleLinear().domain(quantileThresholds).range(d3.range(numQuantiles + 1).map(d => d / numQuantiles));
+    console.timeEnd("Quantiles D3");
 }
 </script>
 
@@ -166,7 +178,7 @@ canvas {
 }
 
 .axis-label {
-    font-size: 16px;   /* Or try 18px, 20px, etc */
+    font-size: 30px;   /* Or try 18px, 20px, etc */
     font-family: 'serif'; /* Optional: make it match math style */
 }
 

@@ -15,6 +15,7 @@
     export let height = 50;
     export let gradientId = 'gradient-default'; 
     export let step = 0.01;
+    export let title = "value";
 
    // let container;
     let sliderElement; 
@@ -65,9 +66,10 @@
         .attr('width', sliderRectangle)
         .attr('height', 8)
         .attr('fill', 'url(#' + gradientId + ')')
-        .attr('opacity', 0.4)
+        .attr('fill-opacity', 0.5)
         .attr('stroke', 'url(#' + gradientId + ')')
-        .attr('stroke-width', 3);
+        .attr('stroke-opacity', 0.9)
+        .attr('stroke-width', 2);
 
       shadeRect = background.append('rect')
         .attr('x', marginExt + ((value - min) / (max - min)) * (sliderRectangle))
@@ -76,7 +78,7 @@
         .attr('width', sliderRectangle - ((value - min) / (max - min)) * (sliderRectangle))
         .attr('height', 8)
         .attr('fill', '#bbb')
-        .attr('opacity', 0.6)       
+        .attr('fill-opacity', 0.6)       
         .attr('stroke', '#bbb')
         .attr('stroke-opacity', 0)      
         .attr('stroke-width', 2);
@@ -110,14 +112,17 @@
             .attr("x", sliderWidth / 2)       
             .attr("y", 15)           
             .attr("text-anchor", "middle")
-            .attr("fill", "white")          
-            .text(value.toFixed(2));         
+            .style("font-size", "16px")
+            .style("font-family", "Georgia, serif") 
+            .style("fill", "var(--text-color)")  
+            .style("user-select", "none")     
+            .text(title + " : " + value.toFixed(2));         
     });
 
 
     function updateText(text, value) {
         let valueToShow = snapToStep(value, step, 10);
-        text.text(valueToShow);
+        text.text(title + " : " + valueToShow);
     }
 
     function updateSlider(circle, shadeRect, pos, value) {

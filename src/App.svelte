@@ -2,10 +2,14 @@
   import ComboboxColorScales from './components/ComboboxColorScales.svelte';
   import D3Graph from './components/D3Graph.svelte';
   import D3Slider from './components/D3Slider.svelte';
+  import D3CheckBox from './components/D3CheckBox.svelte';
+
+
   import Compute from './components/Compute.svelte';
   import MathJaxRenderer from './components/MathJaxRenderer.svelte';
 
-  const expression = '\\prod_{i=1}^{n} (ai +b)\\cdot \\sin(x)';
+  const expression = 'f(x) = \\prod_{k=1}^{{n}} ({a}i + {b}) \\cdot \\sin(x)';
+  const expression2 = 'x \\in \\mathbb{C} \\mid \\{ \\text{Re}(x),\\text{Im}(x) \\in [-\\pi, \\pi] \\}'
   const sizeSampling = 700;
   const width = sizeSampling;
   const height = sizeSampling;
@@ -42,13 +46,13 @@
 
 let selectedColorScale = colorScales[0];
 
-let sliderValue = 0.15;
+let sliderValue = 0.19;
 let triggerValueIm = sliderValue;
 
-let sliderValueR = 0.80;
+let sliderValueR = 0.98;
 let triggerValueRe = sliderValueR;
 
-let sliderValueIter = 15;
+let sliderValueIter = 35;
 let triggerValueIter = sliderValueIter;
 
 function handleColorScaleSelection(event) {
@@ -76,6 +80,13 @@ function handleSliderIterChange(value) {
     console.log(value);
     sliderValueIter = value;
     triggerValueIter = sliderValueIter;
+}
+
+let visuType = "im";
+
+function handleChangeVisuType(value) {
+  visuType = value;
+  console.log("Checkbox is now", visuType);
 }
 
 </script>
@@ -114,18 +125,25 @@ function handleSliderIterChange(value) {
 <div class="layout">
   <!-- Colonne gauche -->
   <div class="left-column">
+    <MathJaxRenderer tex={expression2} />
     <MathJaxRenderer tex={expression} />
-    <D3Slider {selectedColorScale} bind:value={sliderValue} on:change_value={(e) => handleSliderImChange(e.detail)} />
-    <D3Slider {selectedColorScale} bind:value={sliderValueR} on:change_value={(e) => handleSliderReChange(e.detail)} />
-    <D3Slider {selectedColorScale} step={1} min = {1} max = {50} bind:value={sliderValueIter} on:change_value={(e) => handleSliderIterChange(e.detail)} />
+    <MathJaxRenderer tex={""} />
+    <D3Slider {selectedColorScale} step={0.01} min = {0} max = {1.5} title={"a"} bind:value={sliderValue} on:change_value={(e) => handleSliderImChange(e.detail)} />
+    <D3Slider {selectedColorScale} step={0.01} min = {0} max = {1.5} title={"b"} bind:value={sliderValueR} on:change_value={(e) => handleSliderReChange(e.detail)} />
+    <D3Slider {selectedColorScale} step={1} min = {1} max = {50} title={"n"} bind:value={sliderValueIter} on:change_value={(e) => handleSliderIterChange(e.detail)} />
   </div>
 
   <!-- Colonne centrale -->
   <div class="center-column">
-    <ComboboxColorScales {colorScales} {width} on:select={handleColorScaleSelection} />
+    
     <D3Graph {data} {width} {height} {selectedColorScale} />
   </div>
 
   <!-- Colonne droite (vide ou à utiliser plus tard) -->
-  <div class="right-column"></div>
+  <div class="right-column">
+    <ComboboxColorScales {colorScales} {width} on:select={handleColorScaleSelection} />
+    <D3CheckBox height={30} value_id={"im"} label={"Im(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <D3CheckBox height={30} value_id={"re"} label={"Re(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+  </div>
+
 </div>

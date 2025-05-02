@@ -74,7 +74,7 @@
       width: 300px;
       padding: 8px;
       background-color:  var(--main-bg-color);
-      border: 1px solid #ccc;
+      border: 1px solid hsla(0, 0%, 80%, 0.404);
       border-radius: 4px;
       font-size: 14px;
       cursor: pointer;
@@ -112,6 +112,12 @@
     .dropdown-item:hover {
       background-color:  var(--main-bg-color);
     }
+
+    .color-scale-item.selected .color-scale-box {
+      outline: 2px solid white; /* ou autre couleur selon ton thème */
+      outline-offset: 1px;
+      border-radius: 3px;
+    }
   </style>
   
   <div class="combobox-container"  bind:this={comboboxRef}>
@@ -127,8 +133,8 @@
       <div class="dropdown" bind:this={dropdownRef}>
         {#each colorScales as scaleName}
           <div
-            class="color-scale-item dropdown-item"
-            on:click={() => handleSelect(scaleName)}>
+          class="color-scale-item dropdown-item {selectedScale === scaleName ? 'selected' : ''}"
+          on:click={() => handleSelect(scaleName)}>
             <!-- Gradient box for color scale -->
             <div class="color-scale-box" style="background: linear-gradient(to right, {getGradient(scaleName)})"></div>
           </div>

@@ -55,6 +55,6 @@
       justify-content: center;
       align-items: center;
       min-height: 2em;
-      font-size: 1.2em;
+      font-size: 1em;
     }
   </style>
