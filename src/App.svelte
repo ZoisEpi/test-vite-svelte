@@ -4,12 +4,20 @@
   import D3Slider from './components/D3Slider.svelte';
   import D3CheckBox from './components/D3CheckBox.svelte';
 
+  import { onMount } from 'svelte';
+  import { loadMathJaxOnce } from './utils/MathJaxLoader.js';
+
+  onMount(() => {
+    loadMathJaxOnce();
+  });
+
 
   import Compute from './components/Compute.svelte';
   import MathJaxRenderer from './components/MathJaxRenderer.svelte';
+    import { utcMillisecond } from 'd3';
 
-  const expression = 'f(x) = \\prod_{k=1}^{{n}} ({a}i + {b}) \\cdot \\sin(x)';
-  const expression2 = 'x \\in \\mathbb{C} \\mid \\{ \\text{Re}(x),\\text{Im}(x) \\in [-\\pi, \\pi] \\}'
+  const expression = 'f(z) = \\prod_{k=1}^{{n}} ({a} + i{b}) \\cdot \\sin(z)';
+  const expression2 = 'z \\in \\mathbb{C} \\mid \\{ \\text{Re}(z),\\text{Im}(z) \\in [-t, t] \\}'
   const sizeSampling = 700;
   const width = sizeSampling;
   const height = sizeSampling;
@@ -46,8 +54,8 @@
 
 let selectedColorScale = 'interpolateViridis';
 
-let sliderValue = 0.19;
-let triggerValueIm = sliderValue;
+let sliderValueI = 0.19;
+let triggerValueIm = sliderValueI;
 
 let sliderValueR = 0.98;
 let triggerValueRe = sliderValueR;
@@ -55,19 +63,22 @@ let triggerValueRe = sliderValueR;
 let sliderValueIter = 35;
 let triggerValueIter = sliderValueIter;
 
+let sliderValueZoomPi = 1;
+let triggerValueZoomPi = sliderValueZoomPi;
+
+
 function handleColorScaleSelection(event) {
   selectedColorScale = event.detail.scale;
 }
 
 function handleCalculated(event) {
-
-  data = event.detail;  // Récupérer les données calculées
+  data = event.detail;
 }
 
 function handleSliderImChange(value) {
     console.log(value);
-    sliderValue = value;
-    triggerValueIm = sliderValue;
+    sliderValueI = value;
+    triggerValueIm = sliderValueI;
 }
 
 function handleSliderReChange(value) {
@@ -80,6 +91,12 @@ function handleSliderIterChange(value) {
     console.log(value);
     sliderValueIter = value;
     triggerValueIter = sliderValueIter;
+}
+
+function handleSliderZoomPiChange(value) {
+    console.log(value);
+    sliderValueZoomPi = value;
+    triggerValueZoomPi = sliderValueZoomPi;
 }
 
 let visuType = "im";
@@ -105,7 +122,7 @@ function handleChangeVisuType(value) {
   .right-column {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
     min-width: 300px;
     flex: 0 0 300px;
   }
@@ -114,43 +131,44 @@ function handleChangeVisuType(value) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
     flex: 1 1 auto;
     min-width: 500px;
   }
 </style>
 
-<Compute {sizeSampling} {triggerValueIm} {triggerValueRe} {triggerValueIter} on:calculated={handleCalculated} />
+<Compute {sizeSampling} {triggerValueIm} {triggerValueRe} {triggerValueIter} {triggerValueZoomPi} on:calculated={handleCalculated} />
 
 <div class="layout">
   <!-- Colonne gauche -->
   <div class="left-column">
     <MathJaxRenderer tex={expression2} />
+    <D3Slider {selectedColorScale} step={1} min = {1} max = {25} height = {70} title={"t : π/"} bind:value={sliderValueZoomPi} on:change_value={(e) => handleSliderZoomPiChange(e.detail)} />
     <MathJaxRenderer tex={expression} />
-    <MathJaxRenderer tex={""} />
-    <D3Slider {selectedColorScale} step={0.01} min = {0} max = {1.5} title={"a"} bind:value={sliderValue} on:change_value={(e) => handleSliderImChange(e.detail)} />
-    <D3Slider {selectedColorScale} step={0.01} min = {0} max = {1.5} title={"b"} bind:value={sliderValueR} on:change_value={(e) => handleSliderReChange(e.detail)} />
-    <D3Slider {selectedColorScale} step={1} min = {1} max = {50} title={"n"} bind:value={sliderValueIter} on:change_value={(e) => handleSliderIterChange(e.detail)} />
+    <D3Slider {selectedColorScale} step={0.01} min = {0} max = {1.5} title={"a : "} bind:value={sliderValueR} on:change_value={(e) => handleSliderReChange(e.detail)} />
+    <D3Slider {selectedColorScale} step={0.01} min = {0} max = {1.5} title={"b : "} bind:value={sliderValueI} on:change_value={(e) => handleSliderImChange(e.detail)} />
+    <D3Slider {selectedColorScale} step={1} min = {1} max = {50} title={"n : "} bind:value={sliderValueIter} on:change_value={(e) => handleSliderIterChange(e.detail)} />
   </div>
 
   <!-- Colonne centrale -->
   <div class="center-column">
     
-    <D3Graph {data} {width} {height} {selectedColorScale} {visuType}/>
+    <D3Graph {data} {width} {height} {selectedColorScale} {visuType} {triggerValueZoomPi}/>
   </div>
 
   <!-- Colonne droite (vide ou à utiliser plus tard) -->
   <div class="right-column">
     <ComboboxColorScales {colorScales} {width} bind:selectedScale={selectedColorScale} on:select={handleColorScaleSelection} />
-    <MathJaxRenderer tex={ 'f(x) = \\operatorname{Re}(x) + i \\cdot \\operatorname{Im}(x)'} />
+    <MathJaxRenderer tex={ 'f(z) = \\operatorname{Re}(z) + i \\cdot \\operatorname{Im}(z)'} />
 
-    <D3CheckBox height={30} value_id={"re"} label={"Re(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
-    <D3CheckBox height={30} value_id={"im"} label={"Im(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
-    
+    <D3CheckBox height={25} value_id={"re"} label={"Re(z)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <D3CheckBox height={25} value_id={"im"} label={"Im(z)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <D3CheckBox height={25} value_id={"im - re"} label={"|Im(z)| - |Re(z)|"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+  
     <MathJaxRenderer tex={ 'f(x) = \\rho(x) \\cdot e^{i \\theta(x)}'} />  
 
-    <D3CheckBox height={30} value_id={"rho"} label={"ρ(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
-    <D3CheckBox height={30} value_id={"theta"} label={"θ(x)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <D3CheckBox height={25} value_id={"rho"} label={"ρ(z)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
+    <D3CheckBox height={25} value_id={"theta"} label={"θ(z)"} bind:value_group={visuType} on:change_check={(e) => handleChangeVisuType(e.detail)} />
     
  
     </div>

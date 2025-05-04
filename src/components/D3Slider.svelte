@@ -116,13 +116,13 @@
             .style("font-family", "Georgia, serif") 
             .style("fill", "var(--text-color)")  
             .style("user-select", "none")     
-            .text(title + " : " + value.toFixed(2));         
+            .text(title + value.toFixed(2));         
     });
 
 
     function updateText(text, value) {
         let valueToShow = snapToStep(value, step, 10);
-        text.text(title + " : " + valueToShow);
+        text.text(title + valueToShow);
     }
 
     function updateSlider(circle, shadeRect, pos, value) {

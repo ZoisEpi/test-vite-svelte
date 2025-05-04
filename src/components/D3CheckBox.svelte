@@ -3,11 +3,11 @@
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
   
-    export let height = 50;
+    export let height = 30;
     export let value_id = "im"
     export let value_group = "";
               
-    export let label = 'toto';        
+    export let label = '';        
     export let gradientId = 'gradient-default'; 
     
     let checkPath = null;
